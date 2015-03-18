@@ -13,23 +13,15 @@ import scipy.ndimage.filters
 # Non-Standard Libraries
 from util import *
 
-KERNEL_DIM = 15
-BOX_THICKNESS = 2
-BOX_COLOR = [0,0,255]
-
-def get_smaller_eigenvalue(F_x_squared_val, F_y_squared_val, F_xy_val):
-    eigen_values, eigen_vectors = numpy.linalg.eig(numpy.array(
-                                                                [[F_x_squared_val,F_xy_val],
-                                                                 [F_xy_val,F_y_squared_val]] 
-                                                              ))
-    return min(eigen_values)
+KERNEL_DIM = 3
 
 def usage():
-    # Sample Usage: python lucas_kanade_optical_flow.py a.jpg b.jpg out.pfm
+    # Sample Usage: python lucas_kanade_optical_flow.py a.jpg b.jpg 5 out.pfm
     print >> sys.stderr, 'python '+__file__+' image_a image_b spatial_sigma output_pfm'
     sys.exit(1)
 
 def main():
+    numpy.set_printoptions(linewidth=200, precision=5, suppress=True)
     if len(sys.argv) < 5:
         usage()
     print 
@@ -41,18 +33,12 @@ def main():
     A_grayscale = convert_to_grayscale(A)
     B_grayscale = convert_to_grayscale(B)
     
-    sobel_x = numpy.array([[-1, 0, 1], # these are the sobel filter kernels
-                           [-2, 0, 2],
-                           [-1, 0, 1]], dtype='float')
-    sobel_y = numpy.array([[-1, -2, -1],
-                           [ 0,  0,  0],
-                           [ 1,  2,  1]], dtype='float')
-    
-    Ax = convolve(A_grayscale, sobel_x) # convolving with the sobel filter kernels
-    Ay = convolve(A_grayscale, sobel_y) 
+    Ax = scipy.ndimage.filters.sobel(A_grayscale,axis=1)
+    Ay = scipy.ndimage.filters.sobel(A_grayscale,axis=0)
     At = B_grayscale-A_grayscale
     
-    gaussian_kernel = get_gaussian_kernel(KERNEL_DIM, spatial_sigma)
+#    gaussian_kernel = get_gaussian_kernel(KERNEL_DIM, spatial_sigma)
+    gaussian_kernel = numpy.ones([KERNEL_DIM,KERNEL_DIM], dtype='float')
     Ax_squared = numpy.square(Ax)
     Ay_squared = numpy.square(Ay)
     Ax_squared_blurred = convolve(Ax_squared, gaussian_kernel)
@@ -83,10 +69,39 @@ def main():
     
     V_x, V_y = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
     
-    Image.fromarray(50*numpy.square(V_x).astype('uint8')).save('V_x.png')
-    Image.fromarray(50*numpy.square(V_y).astype('uint8')).save('V_y.png')
+    Image.fromarray((numpy.square(V_x)).astype('uint8')).save('V_x.png')
+    Image.fromarray((numpy.square(V_y)).astype('uint8')).save('V_y.png')
+    Image.fromarray(50*numpy.sqrt(numpy.square(V_x)+numpy.square(V_y)).astype('uint8')).save('V_magnitude.png')
     
-#    pdb.set_trace()
+    print 'V_x', numpy.sum(V_x)
+    print 'V_x', numpy.sum(V_y)
+    print 'Ax', numpy.sum(Ax)
+    print 'Ay', numpy.sum(Ay)
+    print 'A', numpy.sum(A)
+    print 'Ax', numpy.all(Ax==0)
+    print 'Ay', numpy.all(Ay==0)
+    print 'V_x', numpy.all(V_x==0)
+    print 'V_y', numpy.all(V_y==0)
+    print '1-'*88
+    print 'Ax_squared_blurred', numpy.all(Ax_squared_blurred==0)
+    print 'Ay_squared_blurred', numpy.all(Ay_squared_blurred==0)
+    print '2-'*88
+    print 'Axy_blurred', numpy.all(Axy_blurred==0)
+    print 'At', numpy.all(At==0)
+    print 'Axt', numpy.all(Axt==0)
+    print 'Ayt', numpy.all(Ayt==0)
+    print '3-'*88
+    print 'Axt_blurred', numpy.all(Axt_blurred==0)
+    print 'Ayt_blurred', numpy.all(Ayt_blurred==0)
+    print 'Ayt_blurred', numpy.all(Ayt_blurred==0)
+    print 
+    print 'V_x'
+    print V_x
+    print 
+    print 'V_y'
+    print V_y
+    print 
+    pdb.set_trace()
 
 if __name__ == '__main__':
     main()
