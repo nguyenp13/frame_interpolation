@@ -29,6 +29,7 @@ def main():
     A = numpy.array(Image.open(sys.argv[1])).astype('float')
     B = numpy.array(Image.open(sys.argv[2])).astype('float')
     spatial_sigma = float(sys.argv[3])
+    out_pfm_file_name = os.path.abspath(sys.argv[4])
     
     A_grayscale = convert_to_grayscale(A)
     B_grayscale = convert_to_grayscale(B)
@@ -67,7 +68,14 @@ def main():
     
     calculate_velocity_vectorized = numpy.vectorize(calculate_velocity)
     
-    V_x, V_y = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
+    velocity_map = numpy.empty(A.shape, dtype='float')
+    
+    velocity_map[:,:,0],velocity_map[:,:,1] = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
+    
+    save_image(numpy.square(velocity_map[:,:,0]),'V_x.png')
+    save_image(numpy.square(velocity_map[:,:,1]),'V_y.png')
+    
+    writepfm(velocity_map, out_pfm_file_name)
     
     pdb.set_trace()
 
