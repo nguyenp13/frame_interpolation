@@ -14,11 +14,12 @@ import scipy.ndimage.filters
 from util import *
 
 def usage():
-    # Sample Usage: python lucas_kanade_optical_flow.py a.jpg b.jpg out.pfm
+    # Sample Usage: python lucas_kanade_optical_flow.py a.png b.png out.pfm -spatial_sigma 5 -kernel_dim 31
     print >> sys.stderr, 'python '+__file__+' image_a image_b output_pfm'
     print >> sys.stderr, ''
     print >> sys.stderr, 'Options: -spatial_sigma <float_val>'
     print >> sys.stderr, '         -kernel_dim <int_val>'
+    print >> sys.stderr, '         -num_iterations <int_val>'
     print >> sys.stderr, ''
     sys.exit(1)
 
@@ -70,6 +71,7 @@ def main():
     out_pfm_file_name = os.path.abspath(sys.argv[3])
     spatial_sigma = float(get_command_line_param_val(sys.argv, '-spatial_sigma', 'Error: A spatial sigma must be specified.', 'Error: Problem with specified spatial sigma value.'))
     kernel_dim = int(get_command_line_param_val(sys.argv, '-kernel_dim', 'Error: Kernel width must be specified.', 'Error: Problem with specified kernel width.'))
+    num_iterations = int(get_command_line_param_val(sys.argv, '-num_iterations', 'Error: Number of iterations must be specified.', 'Error: Problem with specified number of iterations.'))
     
     A_grayscale = convert_to_grayscale(A)
     B_grayscale = convert_to_grayscale(B)
@@ -78,8 +80,8 @@ def main():
 #    gaussian_kernel = numpy.ones([kernel_dim,kernel_dim], dtype='float') # To use no weights
     velocity_map = lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel)
     
-    save_image(numpy.square(velocity_map[:,:,0]),'V_x.png')
-    save_image(numpy.square(velocity_map[:,:,1]),'V_y.png')
+    save_image(numpy.square(velocity_map[:,:,X_COORD]),'V_x.png')
+    save_image(numpy.square(velocity_map[:,:,Y_COORD]),'V_y.png')
     
     writepfm(velocity_map, out_pfm_file_name)
     
