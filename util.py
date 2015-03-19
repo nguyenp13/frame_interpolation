@@ -39,31 +39,23 @@ def visualize_optical_flow(velocity_map, output_file=None):
         save_image(visualization_rgb, output_file)
     return visualization_rgb, velocity_map_magnitudes, angle_map
 
-def generate_optical_flow_visualization_legend(output_file=None, width=1001, height=1001):
-    center_x = width/2
-    center_y = height/2
-    coords_map = numpy.empty([height, width, 3], dtype='float')
-    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])-center_x
-    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height-1,-1,-1)[:,None],[1,width])-center_y
-    return visualize_optical_flow(coords_map, output_file)
-
-def generate_optical_flow_visualization_legend_with_arrows(output_file=None, width=1001, height=1001, box_width = 50):
-    legend_image, magnitude_map, angle_map = generate_optical_flow_visualization_legend(None, width, height)
-    h,w = legend_image.shape[:2]
+def visualize_optical_flow_with_arrows(velocity_map, output_file=None, box_width = 50):
+    visualization_image, magnitude_map, angle_map = visualize_optical_flow(velocity_map, None)
+    h,w = visualization_image.shape[:2]
     def line(x0,y0,x1,y1):
         distance = int(round(math.sqrt((x1-x0)**2+(y1-y0)**2)))
         for i in xrange(distance):
             t = float(i)/distance
             x = x0*(1-t)+x1*t
             y = y0*(1-t)+y1*t
-            legend_image[y,x,:] = [0,0,0]
+            visualization_image[y,x,:] = [0,0,0]
             for yy in [y-1,y,y+1]:
                 for xx in [x-1,x,x+1]:
                     if yy >= 0 and yy < h and xx >= 0 and xx < w:
-                        legend_image[yy,xx] /= 2.0
-    for y in xrange(0, height, box_width):
-        for x in xrange(0, width, box_width):
-            if x+box_width<width and y+box_width<height:
+                        visualization_image[yy,xx] /= 2.0
+    for y in xrange(0, h, box_width):
+        for x in xrange(0, w, box_width):
+            if x+box_width<w and y+box_width<h:
                 center_y = round(y+box_width/2.0)
                 center_x = round(x+box_width/2.0)
                 line_length = math.sqrt(numpy.mean(magnitude_map[y:y+box_width,x:x+box_width]))*box_width/2.0
@@ -89,7 +81,25 @@ def generate_optical_flow_visualization_legend_with_arrows(output_file=None, wid
                 right_wing_x = end_point_x+right_wing_dx_rel*line_length/2.0
                 right_wing_y = end_point_y+right_wing_dy_rel*line_length/2.0
                 line(end_point_x, end_point_y, right_wing_x, right_wing_y)
-    save_image(legend_image,output_file)
+    gaussian_kernel = get_gaussian_kernel(13, 2)
+    save_image(visualization_image,output_file)
+    return visualization_image, magnitude_map, angle_map
+
+def generate_optical_flow_visualization_legend(output_file=None, width=1001, height=1001):
+    center_x = width/2
+    center_y = height/2
+    coords_map = numpy.empty([height, width, 3], dtype='float')
+    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])-center_x
+    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height-1,-1,-1)[:,None],[1,width])-center_y
+    return visualize_optical_flow(coords_map, output_file)
+
+def generate_optical_flow_visualization_legend_with_arrows(output_file=None, width=1001, height=1001, box_width = 50):
+    center_x = width/2
+    center_y = height/2
+    coords_map = numpy.empty([height, width, 3], dtype='float')
+    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])-center_x
+    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height-1,-1,-1)[:,None],[1,width])-center_y
+    return visualize_optical_flow_with_arrows(coords_map, output_file, box_width=box_width)
 
 def assertion(condition, message):
     if not condition:
