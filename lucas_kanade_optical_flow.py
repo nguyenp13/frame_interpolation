@@ -62,8 +62,6 @@ def lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel):
 
 def main():
     numpy.set_printoptions(linewidth=200, precision=5, suppress=True)
-    generate_optical_flow_visualization_legend_with_arrows('legend.png')
-    exit()
     if len(sys.argv) < 4:
         usage()
     print 
