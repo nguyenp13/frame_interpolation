@@ -14,7 +14,7 @@ import scipy.ndimage.filters
 from util import *
 
 def usage():
-    # Sample Usage: python lucas_kanade_optical_flow.py a.png b.png out.pfm -spatial_sigma 5 -kernel_dim 31
+    # Sample Usage: python lucas_kanade_optical_flow.py a.png b.png out.pfm -spatial_sigma 5 -kernel_dim 31 -num_iterations 1
     print >> sys.stderr, 'python '+__file__+' image_a image_b output_pfm'
     print >> sys.stderr, ''
     print >> sys.stderr, 'Options: -spatial_sigma <float_val>'
@@ -58,6 +58,13 @@ def lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel):
     velocity_map = numpy.empty(A_grayscale.shape+(3,), dtype='float')
     velocity_map[:,:,0],velocity_map[:,:,1] = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
     
+    print 'X_COORD'
+    print velocity_map[:,:,X_COORD]
+    print 'Y_COORD'
+    print velocity_map[:,:,Y_COORD]
+    print 
+#    pdb.set_trace()
+    
     return velocity_map
 
 def main():
@@ -73,6 +80,12 @@ def main():
     kernel_dim = int(get_command_line_param_val(sys.argv, '-kernel_dim', 'Error: Kernel width must be specified.', 'Error: Problem with specified kernel width.'))
     num_iterations = int(get_command_line_param_val(sys.argv, '-num_iterations', 'Error: Number of iterations must be specified.', 'Error: Problem with specified number of iterations.'))
     
+    print "Parameters: "
+    print "    spatial_sigma: %s" % str(spatial_sigma)
+    print "    kernel_dim: %s" % str(kernel_dim)
+    print "    num_iterations: %s" % str(num_iterations)
+    print 
+    
     A_grayscale = convert_to_grayscale(A)
     B_grayscale = convert_to_grayscale(B)
     
@@ -80,12 +93,15 @@ def main():
 #    gaussian_kernel = numpy.ones([kernel_dim,kernel_dim], dtype='float') # To use no weights
     velocity_map = lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel)
     
-    save_image(numpy.square(velocity_map[:,:,X_COORD]),'V_x.png')
-    save_image(numpy.square(velocity_map[:,:,Y_COORD]),'V_y.png')
+#    save_image(numpy.square(velocity_map[:,:,X_COORD]),'V_x.png')
+#    save_image(numpy.square(velocity_map[:,:,Y_COORD]),'V_y.png')
     
-    writepfm(velocity_map, out_pfm_file_name)
-    
-#    pdb.set_trace()
+    correspondences = convert_velocity_map_to_absolute_coordinates(velocity_map)
+#    print 'X'
+#    print correspondences[:,:,X_COORD]
+#    print 'Y'
+#    print correspondences[:,:,Y_COORD]
+    writepfm(correspondences, out_pfm_file_name)
 
 if __name__ == '__main__':
     main()

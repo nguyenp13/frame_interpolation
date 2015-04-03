@@ -25,6 +25,13 @@ def save_image(image, name):
     final_output = final_output.astype('uint8') 
     Image.fromarray(final_output).save(name) 
 
+def convert_velocity_map_to_absolute_coordinates(velocity_map):
+    height, width = velocity_map.shape[:2]
+    coords_map = numpy.empty([height, width, 3], dtype='float')
+    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])
+    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height)[:,None],[1,width])
+    return round_vectorized(coords_map+velocity_map)
+
 def visualize_optical_flow(velocity_map, output_file=None):
     velocity_map_magnitudes = numpy.sqrt(numpy.square(velocity_map[:,:,X_COORD])+numpy.square(velocity_map[:,:,Y_COORD]))
     velocity_map_magnitudes /= numpy.max(velocity_map_magnitudes,axis=None) # Normalize the vectors
