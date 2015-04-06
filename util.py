@@ -17,8 +17,15 @@ PI = math.pi
 X_COORD = 1
 Y_COORD = 0
 
+R_COORD = 0
+G_COORD = 1
+B_COORD = 2
+
 round_vectorized = numpy.vectorize(round)
 atan2_vectorized = numpy.vectorize(math.atan2)
+
+def lerp(a, b, x):
+    return a*(1.0-x) + b*(x)
 
 def save_image(image, name): 
     final_output = clamp_array(image) 
@@ -28,9 +35,16 @@ def save_image(image, name):
 def convert_velocity_map_to_absolute_coordinates(velocity_map):
     height, width = velocity_map.shape[:2]
     coords_map = numpy.empty([height, width, 3], dtype='float')
+    
     coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])
     coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height)[:,None],[1,width])
-    return round_vectorized(coords_map+velocity_map)
+    
+    coords_map = round_vectorized(coords_map+velocity_map)
+    
+    coords_map[:,:,X_COORD] = clamp_array(coords_map[:,:,X_COORD], 0, width-1)
+    coords_map[:,:,Y_COORD] = clamp_array(coords_map[:,:,Y_COORD], 0, height-1)
+    
+    return coords_map 
 
 def visualize_optical_flow(velocity_map, output_file=None):
     velocity_map_magnitudes = numpy.sqrt(numpy.square(velocity_map[:,:,X_COORD])+numpy.square(velocity_map[:,:,Y_COORD]))
