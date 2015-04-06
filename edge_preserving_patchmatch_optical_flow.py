@@ -20,8 +20,13 @@ def usage():
 
 def patch_distance_bilateral_weight(A,B,y_A,x_A,y_B,x_B,patchRadius):
     distance = 0.0
-    for y in range(-patchRadius, patchRadius+1):
-        for x in range(-patchRadius, patchRadius+1):
+    for yy in range(-patchRadius, patchRadius+1):
+        for xx in range(-patchRadius, patchRadius+1):
+            y = yy
+            x = xx
+            y_A_clampled == y_A+yy
+            if y_A_clampled < 0:
+                weight = 0
             distance += 0.1
     return distance
 
@@ -30,26 +35,38 @@ def patch_distance_SSD(A,B,y_A,x_A,y_B,x_B,patchRadius):
     for y in range(-patchRadius, patchRadius+1):
         for x in range(-patchRadius, patchRadius+1):
             y_A_clampled = y_A+y
-            if y_A_clampled < 0: y_A_clampled = 0
-            if y_A_clampled >= A.shape[0]: y_A_clampled = A.shape[0]-1
+            if y_A_clampled < 0:
+                y_A_clampled = 0
+            if y_A_clampled >= A.shape[0]:
+                y_A_clampled = A.shape[0]-1
             x_A_clampled = x_A+x
-            if x_A_clampled < 0: x_A_clampled = 0
-            if x_A_clampled >= A.shape[0]: x_A_clampled = A.shape[1]-1
+            if x_A_clampled < 0:
+                x_A_clampled = 0
+            if x_A_clampled >= A.shape[0]:
+                x_A_clampled = A.shape[1]-1
             
             y_B_clampled = y_B+y
-            if y_B_clampled < 0: y_B_clampled = 0
-            if y_B_clampled >= B.shape[0]: y_B_clampled = B.shape[0]-1
+            if y_B_clampled < 0:
+                y_B_clampled = 0
+            if y_B_clampled >= B.shape[0]:
+                y_B_clampled = B.shape[0]-1
             x_B_clampled = x_B+x
-            if x_B_clampled < 0: x_B_clampled = 0
-            if x_B_clampled >= B.shape[0]: x_B_clampled = B.shape[1]-1
+            if x_B_clampled < 0:
+                x_B_clampled = 0
+            if x_B_clampled >= B.shape[0]:
+                x_B_clampled = B.shape[1]-1
             
             for c in range(3):
                 distance += math.pow( (A[y_A_clampled,x_A_clampled,c]-B[y_B_clampled,x_B_clampled,c]),2 )
     return distance
 
-def patchMatch(A, B, patchRadius = 5, numIterations = 4):
+def patchMatch(A, B, patchRadius = 3, numIterations = 2):
     offsetArray = initialize_patchmatch(A, B, patchRadius)
     offsetArray = propagate_patchmatch(A,B,offsetArray,patchRadius,numIterations)
+    cpy_offsetArray = np.zeros((offsetArray.shape))
+    for y in range(offsetArray.shape[0]):
+        for x in range(offsetArray.shape[1]):
+            cpy_offsetArray[y,x] = [offsetArray[y,x,1],offsetArray[y,x,0],offsetArray[y,x,2]]
     #pdb.set_trace()
     return offsetArray
 
@@ -101,6 +118,7 @@ def main():
     numIterations = int(get_command_line_param_val(sys.argv, '-numIterations', 'Error: numIterations of patchmatch must be specified.', 'Error: Problem with specified number of iterations.'))
     
     offsetArray = patchMatch(A,B)
+    visualize_optical_flow(offsetArray, "output.png")
     correspondences = convert_velocity_map_to_absolute_coordinates(offsetArray)
     writepfm(correspondences,out_pfm_file_name)
 
