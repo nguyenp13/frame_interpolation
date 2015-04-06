@@ -35,7 +35,8 @@ def calculate_velocity(weighted_sum_of_squared_x_derivative, weighted_sum_of_squ
                    )
     V_x = ans[0]
     V_y = ans[1]
-    return V_x, V_y
+    
+    return V_y, V_x
 
 calculate_velocity_vectorized = numpy.vectorize(calculate_velocity)
 
@@ -56,7 +57,7 @@ def lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel):
     Ayt_blurred = convolve(Axt, gaussian_kernel, zero_borders=True)
     
     velocity_map = numpy.empty(A_grayscale.shape+(3,), dtype='float')
-    velocity_map[:,:,0],velocity_map[:,:,1] = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
+    velocity_map[:,:,Y_COORD],velocity_map[:,:,X_COORD] = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
     
 #    print 'X_COORD'
 #    print velocity_map[:,:,X_COORD]
