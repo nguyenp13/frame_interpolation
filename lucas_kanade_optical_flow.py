@@ -58,11 +58,11 @@ def lucas_kanade_simple(A_grayscale, B_grayscale, gaussian_kernel):
     velocity_map = numpy.empty(A_grayscale.shape+(3,), dtype='float')
     velocity_map[:,:,0],velocity_map[:,:,1] = calculate_velocity_vectorized(Ax_squared_blurred, Ay_squared_blurred, Axy_blurred, Axt_blurred, Ayt_blurred)
     
-    print 'X_COORD'
-    print velocity_map[:,:,X_COORD]
-    print 'Y_COORD'
-    print velocity_map[:,:,Y_COORD]
-    print 
+#    print 'X_COORD'
+#    print velocity_map[:,:,X_COORD]
+#    print 'Y_COORD'
+#    print velocity_map[:,:,Y_COORD]
+#    print 
 #    pdb.set_trace()
     
     return velocity_map
@@ -102,6 +102,9 @@ def main():
 #    print 'Y'
 #    print correspondences[:,:,Y_COORD]
     writepfm(correspondences, out_pfm_file_name)
+    
+    print "Done.", correspondences.shape, numpy.max(correspondences[:,:,Y_COORD], axis=None), numpy.max(correspondences[:,:,X_COORD], axis=None)
+#    pdb.set_trace()
 
 if __name__ == '__main__':
     main()
