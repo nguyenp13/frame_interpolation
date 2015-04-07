@@ -50,10 +50,10 @@ def main():
     for i,t in enumerate([e / float(num_frames-1) for e in xrange(num_frames)]):
         for y in xrange(h):
             for x in xrange(w):
-                a_warp_source_color_x = int(round(lerp(x, ann[y,x,X_COORD], t)))
-                a_warp_source_color_y = int(round(lerp(y, ann[y,x,Y_COORD], t)))
-                b_warp_source_color_x = int(round(lerp(x, bnn[y,x,X_COORD], 1-t)))
-                b_warp_source_color_y = int(round(lerp(y, bnn[y,x,Y_COORD], 1-t)))
+                a_warp_source_color_x = int(round(lerp(x, bnn[y,x,X_COORD], t)))
+                a_warp_source_color_y = int(round(lerp(y, bnn[y,x,Y_COORD], t)))
+                b_warp_source_color_x = int(round(lerp(x, ann[y,x,X_COORD], 1-t)))
+                b_warp_source_color_y = int(round(lerp(y, ann[y,x,Y_COORD], 1-t)))
                 
                 cross_dissolved_red =   round(lerp(A[a_warp_source_color_y, a_warp_source_color_x, R_COORD], B[b_warp_source_color_y, b_warp_source_color_x, R_COORD], t))
                 cross_dissolved_green = round(lerp(A[a_warp_source_color_y, a_warp_source_color_x, G_COORD], B[b_warp_source_color_y, b_warp_source_color_x, G_COORD], t))
