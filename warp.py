@@ -13,6 +13,8 @@ import scipy.ndimage.filters
 # Non-Standard Libraries
 from util import *
 
+NUM_PADDING_FRAMES = 20
+
 def usage():
     # Sample Usage: python warp.py 1.png 2.png ann.pfm bnn.pfm -num_frames 5 
     print >> sys.stderr, 'python '+__file__+' image_a image_b ann_correspondence_pfm bnn_correspondence_pfm output_prefix'
@@ -62,7 +64,11 @@ def main():
                 out[y,x,R_COORD] = cross_dissolved_red
                 out[y,x,G_COORD] = cross_dissolved_green
                 out[y,x,B_COORD] = cross_dissolved_blue
-        save_image(out,output_prefix+'_'+str(i)+'.png')
+        save_image(out,output_prefix+'_'+str(NUM_PADDING_FRAMES+i)+'.png')
+    for i in xrange(NUM_PADDING_FRAMES):
+        save_image(A,output_prefix+'_'+str(i)+'.png')
+        save_image(B,output_prefix+'_'+str(NUM_PADDING_FRAMES+num_frames+i)+'.png')
+        
 
 if __name__ == '__main__':
     main()
