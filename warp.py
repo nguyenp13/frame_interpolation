@@ -13,13 +13,12 @@ import scipy.ndimage.filters
 # Non-Standard Libraries
 from util import *
 
-NUM_PADDING_FRAMES = 20
-
 def usage():
-    # Sample Usage: python warp.py 1.png 2.png ann.pfm bnn.pfm -num_frames 5 
+    # Sample Usage: python warp.py 1.png 2.png ann.pfm bnn.pfm -num_frames 5 -num_padding_frames 0
     print >> sys.stderr, 'python '+__file__+' image_a image_b ann_correspondence_pfm bnn_correspondence_pfm output_prefix'
     print >> sys.stderr, ''
     print >> sys.stderr, 'Options: -num_frames <int_val>'
+    print >> sys.stderr, '         -num_padding_frames <int_val>'
     print >> sys.stderr, ''
     sys.exit(1)
 
@@ -35,6 +34,7 @@ def main():
     bnn_pfm_file_name = os.path.abspath(sys.argv[4])
     output_prefix = os.path.abspath(sys.argv[5])
     num_frames = int(get_command_line_param_val(sys.argv, '-num_frames', 'Error: Kernel width must be specified.', 'Error: Problem with specified kernel width.'))
+    num_padding_frames = int(get_command_line_param_val(sys.argv, '-num_padding_frames', 'Error: Number of padding frames must be specified.', 'Error: Problem with specified number of padding.'))
     
     print "Parameters: "
     print "    num_frames: %s" % str(num_frames)
@@ -64,10 +64,10 @@ def main():
                 out[y,x,R_COORD] = cross_dissolved_red
                 out[y,x,G_COORD] = cross_dissolved_green
                 out[y,x,B_COORD] = cross_dissolved_blue
-        save_image(out,output_prefix+'_'+str(NUM_PADDING_FRAMES+i)+'.png')
-    for i in xrange(NUM_PADDING_FRAMES):
+        save_image(out,output_prefix+'_'+str(num_padding_frames+i)+'.png')
+    for i in xrange(num_padding_frames):
         save_image(A,output_prefix+'_'+str(i)+'.png')
-        save_image(B,output_prefix+'_'+str(NUM_PADDING_FRAMES+num_frames+i)+'.png')
+        save_image(B,output_prefix+'_'+str(num_padding_frames+num_frames+i)+'.png')
         
 
 if __name__ == '__main__':
