@@ -10,6 +10,8 @@ import Image
 import scipy.ndimage.filters
 import matplotlib
 import pdb
+import random
+import string
 
 inf = float('inf')
 PI = math.pi
@@ -23,6 +25,16 @@ B_COORD = 2
 
 round_vectorized = numpy.vectorize(round)
 atan2_vectorized = numpy.vectorize(math.atan2)
+
+def generate_random_file_name(extension0):
+    extension = extension0.replace('.','')
+    new_file_name = None
+    file_exists = True
+    while file_exists:
+        length_of_file_name = max(10,random.randint(0,255)-len(extension))
+        new_file_name = ''.join([random.choice(string.ascii_letters) for i in xrange(length_of_file_name)])+'.'+extension
+        file_exists = os.path.exists(new_file_name)
+    return new_file_name
 
 def lerp(a, b, x):
     return a*(1.0-x) + b*(x)
@@ -128,6 +140,13 @@ def assertion(condition, message):
         print >> sys.stderr, message
         print >> sys.stderr, ''
         sys.exit(1)
+
+def get_command_line_param_val_default_value(args, param_option, default_value):
+    if param_option in args:
+        param_val_index = 1+args.index(param_option)
+        if param_val_index < len(args):
+            return args[param_val_index]
+    return default_value
 
 def get_command_line_param_val(args, param_option, param_option_not_specified_error_message, param_val_not_specified_error_message):
     assertion(param_option in args, param_option_not_specified_error_message)

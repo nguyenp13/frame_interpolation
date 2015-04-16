@@ -14,7 +14,7 @@ import scipy.ndimage.filters
 from util import *
 
 def usage():
-    # Sample Usage: python warp.py 1.png 2.png ann.pfm bnn.pfm -num_frames 5 -num_padding_frames 0
+    # Sample Usage: python warp.py 1.png 2.png ann.pfm bnn.pfm ./out/frame -num_frames 5 -num_padding_frames 0
     print >> sys.stderr, 'python '+__file__+' image_a image_b ann_correspondence_pfm bnn_correspondence_pfm output_prefix'
     print >> sys.stderr, ''
     print >> sys.stderr, 'Options: -num_frames <int_val>'

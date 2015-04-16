@@ -104,7 +104,7 @@ def main():
 #    print correspondences[:,:,Y_COORD]
     writepfm(correspondences, out_pfm_file_name)
     
-    print "Done.", correspondences.shape, numpy.max(correspondences[:,:,Y_COORD], axis=None), numpy.max(correspondences[:,:,X_COORD], axis=None)
+#    print "Done.", correspondences.shape, numpy.max(correspondences[:,:,Y_COORD], axis=None), numpy.max(correspondences[:,:,X_COORD], axis=None)
 #    pdb.set_trace()
 
 if __name__ == '__main__':
