@@ -52,9 +52,7 @@ def main():
     for i,t in enumerate([e / float(num_frames-1) for e in xrange(num_frames)]):
         A_to_B_warp = round_vectorized(warp(A, bnn, t))
         B_to_A_warp = round_vectorized(warp(B, ann, 1-t))
-        
         out = cross_dissolve_vectorized(A_to_B_warp, B_to_A_warp, t)
-        
         save_image(out,output_prefix+'_'+str(num_padding_frames+i)+'.png')
     for i in xrange(num_padding_frames):
         save_image(A,output_prefix+'_'+str(i)+'.png')

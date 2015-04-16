@@ -66,15 +66,6 @@ def warp(A, bnn, t):
     out[:,:,G_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, G_COORD)
     out[:,:,B_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, B_COORD)
     
-#    for y in xrange(height):
-#        for x in xrange(width):
-#            a_warp_source_color_x = int(round(lerp(x, bnn[y,x,X_COORD], t)))
-#            a_warp_source_color_y = int(round(lerp(y, bnn[y,x,Y_COORD], t)))
-#            
-#            out[y,x,R_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,R_COORD]
-#            out[y,x,G_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,G_COORD]
-#            out[y,x,B_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,B_COORD]
-    
     return out
 
 def generate_random_file_name(extension0):
