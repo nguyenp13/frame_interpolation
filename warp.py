@@ -47,23 +47,14 @@ def main():
     A = A0[:h,:w,:]
     B = B0[:h,:w,:]
     
-    out = numpy.zeros(A.shape, dtype='uint8')
+    out = numpy.empty(A.shape, dtype='uint8')
     
     for i,t in enumerate([e / float(num_frames-1) for e in xrange(num_frames)]):
-        for y in xrange(h):
-            for x in xrange(w):
-                a_warp_source_color_x = int(round(lerp(x, bnn[y,x,X_COORD], t)))
-                a_warp_source_color_y = int(round(lerp(y, bnn[y,x,Y_COORD], t)))
-                b_warp_source_color_x = int(round(lerp(x, ann[y,x,X_COORD], 1-t)))
-                b_warp_source_color_y = int(round(lerp(y, ann[y,x,Y_COORD], 1-t)))
-                
-                cross_dissolved_red =   round(lerp(A[a_warp_source_color_y, a_warp_source_color_x, R_COORD], B[b_warp_source_color_y, b_warp_source_color_x, R_COORD], t))
-                cross_dissolved_green = round(lerp(A[a_warp_source_color_y, a_warp_source_color_x, G_COORD], B[b_warp_source_color_y, b_warp_source_color_x, G_COORD], t))
-                cross_dissolved_blue =  round(lerp(A[a_warp_source_color_y, a_warp_source_color_x, B_COORD], B[b_warp_source_color_y, b_warp_source_color_x, B_COORD], t))
-                
-                out[y,x,R_COORD] = cross_dissolved_red
-                out[y,x,G_COORD] = cross_dissolved_green
-                out[y,x,B_COORD] = cross_dissolved_blue
+        A_to_B_warp = round_vectorized(warp(A, bnn, t))
+        B_to_A_warp = round_vectorized(warp(B, ann, 1-t))
+        
+        out = cross_dissolve_vectorized(A_to_B_warp, B_to_A_warp, t)
+        
         save_image(out,output_prefix+'_'+str(num_padding_frames+i)+'.png')
     for i in xrange(num_padding_frames):
         save_image(A,output_prefix+'_'+str(i)+'.png')

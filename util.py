@@ -26,6 +26,57 @@ B_COORD = 2
 round_vectorized = numpy.vectorize(round)
 atan2_vectorized = numpy.vectorize(math.atan2)
 
+def lerp(a, b, x):
+    return a*(1.0-x) + b*(x)
+    
+def generate_coords_map(height,width):
+    coords_map = numpy.empty([height, width, 3], dtype='float')
+    
+    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])
+    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height)[:,None],[1,width])
+    
+    return coords_map
+
+cross_dissolve_vectorized = numpy.vectorize(lerp)
+
+def warp(A, bnn, t):
+    out = numpy.empty(A.shape, dtype='uint8')
+    height, width = A.shape[:2]
+    coords_map = generate_coords_map(height,width)
+    
+    def get_x_source(x, nnf_val):
+        return int(round(lerp(x, nnf_val, t)))
+    
+    def get_y_source(y, nnf_val):
+        return int(round(lerp(y, nnf_val, t)))
+    
+    get_x_source_vectorized = numpy.vectorize(get_x_source)
+    get_y_source_vectorized = numpy.vectorize(get_y_source)
+    
+    a_warp_source_color_x_map = get_x_source_vectorized(coords_map[:,:,X_COORD],bnn[:,:,X_COORD])
+    a_warp_source_color_y_map = get_y_source_vectorized(coords_map[:,:,Y_COORD],bnn[:,:,Y_COORD])
+    
+    def get_final_color(y,x,color_index):
+        return A[y,x,color_index]
+    
+    get_final_color_vectorized = numpy.vectorize(get_final_color)
+    
+    
+    out[:,:,R_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, R_COORD)
+    out[:,:,G_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, G_COORD)
+    out[:,:,B_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, B_COORD)
+    
+#    for y in xrange(height):
+#        for x in xrange(width):
+#            a_warp_source_color_x = int(round(lerp(x, bnn[y,x,X_COORD], t)))
+#            a_warp_source_color_y = int(round(lerp(y, bnn[y,x,Y_COORD], t)))
+#            
+#            out[y,x,R_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,R_COORD]
+#            out[y,x,G_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,G_COORD]
+#            out[y,x,B_COORD] = A[a_warp_source_color_y,a_warp_source_color_x,B_COORD]
+    
+    return out
+
 def generate_random_file_name(extension0):
     extension = extension0.replace('.','')
     new_file_name = None
@@ -36,9 +87,6 @@ def generate_random_file_name(extension0):
         file_exists = os.path.exists(new_file_name)
     return new_file_name
 
-def lerp(a, b, x):
-    return a*(1.0-x) + b*(x)
-
 def save_image(image, name): 
     final_output = clamp_array(image) 
     final_output = final_output.astype('uint8') 
@@ -46,10 +94,7 @@ def save_image(image, name):
 
 def convert_velocity_map_to_absolute_coordinates(velocity_map):
     height, width = velocity_map.shape[:2]
-    coords_map = numpy.empty([height, width, 3], dtype='float')
-    
-    coords_map[:,:,X_COORD] = numpy.tile(numpy.arange(width),[height,1])
-    coords_map[:,:,Y_COORD] = numpy.tile(numpy.arange(height)[:,None],[1,width])
+    coords_map = generate_coords_map(height,width)
     
     coords_map = round_vectorized(coords_map+velocity_map)
     
