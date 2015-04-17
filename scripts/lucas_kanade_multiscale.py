@@ -14,7 +14,7 @@ import scipy.ndimage.filters
 from util import *
 
 def usage(): 
-    # Sample Usage: python lucas_kanade_simple.py ../images/sphere1.jpg ../images/sphere2.jpg ./results -num_frames 50
+    # Sample Usage: python lucas_kanade_multiscale.py ../images/sphere1.png ../images/sphere2.png ./results -num_frames 50
     print >> sys.stderr, 'python '+__file__+' image_a image_b output_directory' 
     print >> sys.stderr, '' 
     print >> sys.stderr, 'Options: -spatial_sigma <float_val> (for weights)'
@@ -22,6 +22,8 @@ def usage():
     print >> sys.stderr, '         -num_iterations <int_val>'
     print >> sys.stderr, '         -num_frames <int_val>'
     print >> sys.stderr, '         -num_padding_frames <int_val>'
+    print >> sys.stderr, '         -num_iterations <int_val>'
+    print >> sys.stderr, '         -num_scales <int_val>'
     print >> sys.stderr, '' 
     sys.exit(1) 
 
@@ -42,6 +44,8 @@ def main():
         kernel_dim = int(get_command_line_param_val_default_value(sys.argv,'-kernel_dim','31'))
         num_frames = int(get_command_line_param_val_default_value(sys.argv,'-num_frames','5'))
         num_padding_frames = int(get_command_line_param_val_default_value(sys.argv,'-num_padding_frames','0'))
+        num_iterations = int(get_command_line_param_val_default_value(sys.argv,'-num_iterations','3'))
+        num_scales = int(get_command_line_param_val_default_value(sys.argv,'-num_scales','3'))
         
         print "Parameters: " 
         print "    image_a_file_name: %s" % str(image_a_file_name) 
@@ -50,7 +54,7 @@ def main():
         print 
         
         makedirs(output_directory)
-        os.system('((python ../lucas_kanade_optical_flow.py '+image_a_file_name+' '+image_b_file_name+' '+ann_pfm_file_name+' -spatial_sigma '+str(spatial_sigma)+' -kernel_dim '+str(kernel_dim)+' -num_iterations 1) & (python ../lucas_kanade_optical_flow.py '+image_b_file_name+' '+image_a_file_name+' '+bnn_pfm_file_name+' -spatial_sigma '+str(spatial_sigma)+' -kernel_dim '+str(kernel_dim)+' -num_iterations 1) & wait && (python ../warp.py '+image_a_file_name+' '+image_b_file_name+' '+ann_pfm_file_name+' '+bnn_pfm_file_name+' '+os.path.join(output_directory,'frame')+' -num_frames '+str(num_frames)+' -num_padding_frames '+str(num_padding_frames)+')) > /dev/null 2>&1')
+        os.system('((python ../lucas_kanade_optical_flow.py '+image_a_file_name+' '+image_b_file_name+' '+ann_pfm_file_name+' -spatial_sigma '+str(spatial_sigma)+' -kernel_dim '+str(kernel_dim)+' -num_iterations '+str(num_iterations)+') & (python ../lucas_kanade_optical_flow.py '+image_b_file_name+' '+image_a_file_name+' '+bnn_pfm_file_name+' -spatial_sigma '+str(spatial_sigma)+' -kernel_dim '+str(kernel_dim)+' -num_iterations '+str(num_iterations)+') & wait && (python ../warp.py '+image_a_file_name+' '+image_b_file_name+' '+ann_pfm_file_name+' '+bnn_pfm_file_name+' '+os.path.join(output_directory,'frame')+' -num_frames '+str(num_frames)+' -num_padding_frames '+str(num_padding_frames)+')) > /dev/null 2>&1')
     finally:
         os.system('rm '+ann_pfm_file_name+' > /dev/null 2>&1')
         os.system('rm '+bnn_pfm_file_name+' > /dev/null 2>&1')
