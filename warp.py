@@ -57,7 +57,6 @@ def main():
     for i in xrange(num_padding_frames):
         save_image(A,output_prefix+'_'+str(i)+'.png')
         save_image(B,output_prefix+'_'+str(num_padding_frames+num_frames+i)+'.png')
-        
 
 if __name__ == '__main__':
     main()

@@ -61,7 +61,6 @@ def warp(A, bnn, t):
     
     get_final_color_vectorized = numpy.vectorize(get_final_color)
     
-    
     out[:,:,R_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, R_COORD)
     out[:,:,G_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, G_COORD)
     out[:,:,B_COORD] = get_final_color_vectorized(a_warp_source_color_y_map, a_warp_source_color_x_map, B_COORD)
