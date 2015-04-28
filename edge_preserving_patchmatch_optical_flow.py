@@ -9,7 +9,7 @@ import scipy.ndimage.filters
 
 from util import *
 
-padSize = 1000
+padSize = 3000
 
 def usage():
     # Sample Usage: python lucas_kanade_optical_flow.py a.png b.png out.pfm -spatial_sigma 5 -kernel_dim 31 -num_iterations 1
@@ -43,6 +43,9 @@ def patchMatch(A, B, patchRadius, numIterations):
     B_padded = np.zeros((B.shape[0]+2*padSize,B.shape[1]+2*padSize,B.shape[2]))
     B_padded[padSize:B.shape[0]+padSize,padSize:B.shape[1]+padSize] = B[0:B.shape[0],0:B.shape[1]]
     
+    A_padded = np.pad(A,((padSize,padSize),(padSize,padSize),(0,0)),'edge')
+    B_padded = np.pad(B,((padSize,padSize),(padSize,padSize),(0,0)),'edge')
+    
     offsetArray = initialize_patchmatch(A_padded, B_padded, patchRadius)
     #offsetArray = propagate_patchmatch(A,B,offsetArray,patchRadius,numIterations)
     offsetArray = propagate_patchmatch(A_padded,B_padded,offsetArray,patchRadius,numIterations)
@@ -54,8 +57,8 @@ def patchMatch(A, B, patchRadius, numIterations):
     return offsetArray
 
 def propagate_patchmatch(A, B, offsetArray, patchRadius, numIterations):
+    print 'Propagating...'
     for i in range(2*numIterations):
-        print 'Propagation iterations ', i/2
         for yy in range(1,A.shape[0]-2*padSize):
             for xx in range(1,A.shape[1]-2*padSize):
                 y = yy
@@ -88,11 +91,11 @@ def propagate_patchmatch(A, B, offsetArray, patchRadius, numIterations):
                     offsetArray[y,x] = [offsetArray[y,x+left_right,0],offsetArray[y,x+left_right,1],left_right_distance]
                 if( offsetArray[y,x,2] > above_below_distance ):
                     offsetArray[y,x] = [offsetArray[y+above_below,x,0],offsetArray[y+above_below,x,1],above_below_distance]
-
-
-return offsetArray
+    print 'Propagation has been done!'
+    return offsetArray
 
 def initialize_patchmatch( A_padded, B_padded, patchRadius ):
+    print 'Initializing...'
     random.seed()
     offsetArray = np.zeros((A_padded.shape[0]-2*padSize,A_padded.shape[1]-2*padSize,3))
     for y in range(A_padded.shape[0]-2*padSize):
@@ -120,7 +123,7 @@ def main():
     numIterations = int(get_command_line_param_val(sys.argv, '-numIterations', 'Error: numIterations of patchmatch must be specified.', 'Error: Problem with specified number of iterations.'))
     
     offsetArray = patchMatch(A,B,patchRadius,numIterations)
-    visualize_optical_flow(offsetArray, "output.png")
+    visualize_optical_flow(offsetArray, out_pfm_file_name[0:len(out_pfm_file_name)-4]+'.png')
     correspondences = convert_velocity_map_to_absolute_coordinates(offsetArray)
     writepfm(correspondences,out_pfm_file_name)
 
