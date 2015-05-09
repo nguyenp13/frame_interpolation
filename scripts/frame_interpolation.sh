@@ -1,17 +1,17 @@
 #!/bin/bash
 
-END=18
+END=1
 
-patchRadius=50
-numIterations=6
+patchRadius=60
+numIterations=5
 numFrames=5
 numPaddingFrames=0
 
 spacialSigma=5
-kernelDim=31
+kernelDim=65
 
 dir1="../images/"
-file="vcbox"
+file="wooden"
 tmp="/"
 tmp_patchMatch="_patchMatch_"
 tmp_lucasKanada="_lucasKanada_"
